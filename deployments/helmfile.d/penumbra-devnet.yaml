@@ -12,6 +12,8 @@ releases:
           tag: main
       - network:
           external_addresses: "104.198.226.117:26656,34.134.110.25:26656"
+          proposal_voting_blocks: "100"
+          epoch_duration: "50"
       - part_of: penumbra-devnet
       # Sidecar vars file for storing external ips. The "penumbra-network" chart
       # doesn't read these vars, but the "get-lb-ips" script writes them there,
