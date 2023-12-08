@@ -150,6 +150,7 @@ impl QueryService for Server {
                         .compact_block(height)
                         .await
                         .expect("no error fetching block")
+                        .ok_or_else(|| anyhow::anyhow!("missing compact block for height {height}"))
                         .expect("compact block for in-range height must be present");
                     tx_blocks
                         .send(Ok(block.into()))
