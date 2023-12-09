@@ -1,0 +1,17 @@
+name: Wasm Unit Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Unit Test
+        run: wasm-pack test --chrome -- --test test_build --target wasm32-unknown-unknown --release --features "mock-database"
