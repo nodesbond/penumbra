@@ -20,5 +20,5 @@ jobs:
           version: 'latest'
 
       - name: Run wasm unit-test
-        run: wasm-pack test --chrome -- --test test_build --target wasm32-unknown-unknown --release --features "mock-database"
+        run: wasm-pack test --headless --chrome -- --test test_build --target wasm32-unknown-unknown --release --features "mock-database"
         working-directory: crates/wasm
