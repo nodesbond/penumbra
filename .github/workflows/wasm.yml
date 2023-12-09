@@ -1,4 +1,4 @@
-name: Wasm Unit Test
+name: Wasm CI
 
 on:
   pull_request:
@@ -14,7 +14,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Unit Test
-        run: 
-          cd crates/wasm
-          wasm-pack test --chrome -- --test test_build --target wasm32-unknown-unknown --release --features "mock-database"
+      - name: Run Wasm Unit Test
+        run: wasm-pack test --chrome -- --test test_build --target wasm32-unknown-unknown --release --features "mock-database"
+        working-directory: crates/wasm
