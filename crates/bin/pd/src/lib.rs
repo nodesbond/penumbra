@@ -13,6 +13,7 @@ pub mod auto_https;
 pub mod events;
 pub mod testnet;
 pub mod upgrade;
+pub mod zipserve;
 
 pub use crate::metrics::register_metrics;
 pub use consensus::Consensus;
@@ -20,3 +21,6 @@ pub use info::Info;
 pub use mempool::Mempool;
 pub use penumbra_app::app::App;
 pub use snapshot::Snapshot;
+
+pub const FRONTEND_APP_ARCHIVE_BYTES: &'static [u8] =
+    include_bytes!("../../../../assets/frontend.zip");

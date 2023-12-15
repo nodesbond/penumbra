@@ -458,6 +458,12 @@ async fn main() -> anyhow::Result<()> {
                 )));
             }
 
+            // TODO: will need a bit of finesse to make this work with auto-https,
+            // since auto-https support above works with the tonic `serve_with_incoming`
+            // method, but now we're dropping down to axum directly. just needs some realignment
+            // probably.
+
+            /*
             let grpc_server = if let Some(domain) = grpc_auto_https {
                 use pd::auto_https::Wrapper;
                 use rustls_acme::{caches::DirCache, AcmeConfig};
@@ -497,11 +503,28 @@ async fn main() -> anyhow::Result<()> {
                         .parse()
                         .context("failed to parse grpc_bind address")?,
                 );
+
+                let frontend = pd::zipserve::router("/app", pd::FRONTEND_APP_ARCHIVE_BYTES);
+                let router = grpc_server.into_router().merge(frontend);
+
                 tokio::task::Builder::new()
                     .name("grpc_server")
                     .spawn(grpc_server.serve(grpc_bind))
                     .expect("failed to spawn grpc server")
             };
+             */
+
+            let grpc_bind = grpc_bind.unwrap_or(
+                "127.0.0.1:8080"
+                    .parse()
+                    .context("failed to parse grpc_bind address")?,
+            );
+
+            let frontend = pd::zipserve::router("/app", pd::FRONTEND_APP_ARCHIVE_BYTES);
+            let router = grpc_server.into_router().merge(frontend);
+
+            tracing::info!(?grpc_bind, "starting grpc and web server");
+            let server_handle = axum::Server::bind(&grpc_bind).serve(router.into_make_service());
 
             // Configure a Prometheus recorder and exporter.
             let (recorder, exporter) = PrometheusBuilder::new()
@@ -532,7 +555,8 @@ async fn main() -> anyhow::Result<()> {
             // We error out if a service errors, rather than keep running
             tokio::select! {
                 x = abci_server => x?.map_err(|e| anyhow::anyhow!(e))?,
-                x = grpc_server => x?.map_err(|e| anyhow::anyhow!(e))?,
+                //x = grpc_server => x?.map_err(|e| anyhow::anyhow!(e))?,
+                x = server_handle => x.map_err(|e| anyhow::anyhow!(e))?,
             };
         }
 
