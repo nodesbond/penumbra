@@ -520,7 +520,9 @@ async fn main() -> anyhow::Result<()> {
                     .context("failed to parse grpc_bind address")?,
             );
 
-            let frontend = pd::zipserve::router("/app", pd::FRONTEND_APP_ARCHIVE_BYTES);
+            //let frontend = pd::zipserve::router("/app", pd::FRONTEND_APP_ARCHIVE_BYTES);
+            // Temporary: try serving the frontend without trying to prefix its internal links
+            let frontend = pd::zipserve::router("", pd::FRONTEND_APP_ARCHIVE_BYTES);
             let router = grpc_server.into_router().merge(frontend);
 
             tracing::info!(?grpc_bind, "starting grpc and web server");
