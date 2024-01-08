@@ -5092,6 +5092,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "penumbra-cometstub"
+version = "0.64.1"
+dependencies = [
+ "anyhow",
+ "ibc-proto",
+ "ibc-types",
+ "tendermint",
+]
+
+[[package]]
 name = "penumbra-community-pool"
 version = "0.64.1"
 dependencies = [

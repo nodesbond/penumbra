@@ -1,0 +1,27 @@
+[package]
+name = "penumbra-cometstub"
+version = "0.64.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["component", "std"]
+component = [
+    # "cnidarium",
+    # "cnidarium-component",
+    # "penumbra-proto/cnidarium",
+    # "penumbra-chain/component",
+]
+std = ["ibc-types/std"]
+
+[dependencies]
+# Workspace dependencies
+
+# Penumbra dependencies
+ibc-proto = { version = "0.40.0", default-features = false }
+ibc-types = { version = "0.11.0", default-features = false }
+
+# Crates.io deps
+anyhow = "1"
+tendermint = "0.34.0"
