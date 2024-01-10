@@ -26,7 +26,7 @@ use crate::component::{
 
 #[async_trait]
 impl MsgHandler for MsgUpdateClient {
-    async fn check_stateless<AH, HI>(&self) -> Result<()> {
+    async fn check_stateless<AH>(&self) -> Result<()> {
         header_is_tendermint(self)?;
 
         Ok(())
