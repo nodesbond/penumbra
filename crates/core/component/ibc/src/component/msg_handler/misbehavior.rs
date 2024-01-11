@@ -7,7 +7,6 @@ use ibc_types::lightclients::tendermint::client_state::ClientState as Tendermint
 use ibc_types::lightclients::tendermint::header::Header as TendermintHeader;
 use ibc_types::lightclients::tendermint::misbehaviour::Misbehaviour as TendermintMisbehavior;
 use ibc_types::lightclients::tendermint::TENDERMINT_CLIENT_TYPE;
-use penumbra_chain::component::StateReadExt as _;
 use tendermint_light_client_verifier::{
     types::{TrustedBlockState, UntrustedBlockState},
     ProdVerifier, Verdict, Verifier,
@@ -15,7 +14,7 @@ use tendermint_light_client_verifier::{
 
 use crate::component::client::StateWriteExt as _;
 use crate::component::client_counter::ics02_validation;
-use crate::component::ClientStateReadExt as _;
+use crate::component::{ClientStateReadExt as _, HostInterface};
 
 use super::update_client::verify_header_validator_set;
 use super::MsgHandler;
@@ -38,7 +37,7 @@ impl MsgHandler for MsgSubmitMisbehaviour {
         Ok(())
     }
 
-    async fn try_execute<S: StateWrite, H, HI>(&self, mut state: S) -> Result<()> {
+    async fn try_execute<S: StateWrite, H, HI: HostInterface>(&self, mut state: S) -> Result<()> {
         tracing::debug!(msg = ?self);
 
         let untrusted_misbehavior =
@@ -63,14 +62,14 @@ impl MsgHandler for MsgSubmitMisbehaviour {
 
         let trusted_client_state = client_state;
 
-        verify_misbehavior_header(
+        verify_misbehavior_header::<&S, HI>(
             &state,
             &untrusted_misbehavior.client_id,
             &untrusted_misbehavior.header1,
             &trusted_client_state,
         )
         .await?;
-        verify_misbehavior_header(
+        verify_misbehavior_header::<&S, HI>(
             &state,
             &untrusted_misbehavior.client_id,
             &untrusted_misbehavior.header2,
@@ -114,7 +113,7 @@ fn client_is_not_frozen(client: &TendermintClientState) -> anyhow::Result<()> {
     }
 }
 
-async fn verify_misbehavior_header<S: StateRead>(
+async fn verify_misbehavior_header<S: StateRead, HI: HostInterface>(
     state: S,
     client_id: &ClientId,
     mb_header: &TendermintHeader,
@@ -154,7 +153,7 @@ async fn verify_misbehavior_header<S: StateRead>(
         untrusted_state,
         trusted_state,
         &options,
-        state.get_block_timestamp().await?,
+        HI::get_block_timestamp(&state).await?,
     );
 
     match verdict {
